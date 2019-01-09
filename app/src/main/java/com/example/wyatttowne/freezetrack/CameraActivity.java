@@ -23,6 +23,7 @@ import android.os.Bundle;
 import android.util.Size;
 import android.view.Surface;
 import android.view.TextureView;
+import android.widget.Toast;
 
 import java.util.Arrays;
 import java.util.stream.Stream;
@@ -46,7 +47,6 @@ public class CameraActivity extends AppCompatActivity {
         setContentView(R.layout.activity_camera);
 
         textureView = (TextureView) findViewById(R.id.texture);
-
         textureView.setSurfaceTextureListener(surfaceTextureListener);
     }
 

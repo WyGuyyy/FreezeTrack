@@ -26,6 +26,7 @@ import java.lang.reflect.Array;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Locale;
 
 public class Add_Item_Activity extends AppCompatActivity {
 
@@ -60,6 +61,8 @@ public class Add_Item_Activity extends AppCompatActivity {
             }
 
         });
+
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
     }
 
@@ -177,23 +180,23 @@ public class Add_Item_Activity extends AppCompatActivity {
        String strName = name.getText().toString();
        String strDesc = desc.getText().toString();
        String strStart = start.getText().toString();
-       String strFinish = start.getText().toString();
+       String strFinish = finish.getText().toString();
        String image = "";
 
        boolean exists = false;
 
-       SimpleDateFormat formatter = new SimpleDateFormat("EEEE, dd/MM/yyyy");
+       SimpleDateFormat formatter = new SimpleDateFormat("MMMM d, yyyy", Locale.ENGLISH);
        Date parsedStartDate = null;
        Date parsedFinishDate = null;
 
        try {
-           parsedStartDate = formatter.parse(strStart);
+           parsedStartDate = formatter.parse(strStart); //HAPPENING HERE!!!
            parsedFinishDate = formatter.parse(strFinish);
        }catch(Exception ex){
            ex.printStackTrace();
        }
 
-       if(parsedFinishDate.before(parsedStartDate)) {
+       if(!parsedFinishDate.before(parsedStartDate)) {
 
            try {
 
@@ -201,7 +204,7 @@ public class Add_Item_Activity extends AppCompatActivity {
                SQLiteDatabase db = freezeDatabaseHelper.getWritableDatabase();
 
                if ((exists = ((FreezeDatabaseHelper) freezeDatabaseHelper).addAnItem(db, strName, strDesc, strStart, strFinish, image))) {
-                   Toast toast = Toast.makeText(this, "Item name already exists. Please try a new name.", Toast.LENGTH_SHORT);
+                   Toast toast = Toast.makeText(this, "Item name already exists. Please try a new name.", Toast.LENGTH_LONG);
                    toast.show();
                }
 
@@ -250,7 +253,7 @@ public class Add_Item_Activity extends AppCompatActivity {
            }
 
        }else{
-           Toast toast = Toast.makeText(this, "Expiration date must be the same as or later than the start date. Item not saved.", Toast.LENGTH_SHORT);
+           Toast toast = Toast.makeText(this, "Expiration date must be the same as or later than the start date. Item not saved.", Toast.LENGTH_LONG);
            toast.show();
        }
    }
@@ -344,6 +347,8 @@ public class Add_Item_Activity extends AppCompatActivity {
    }
 
    private void startCamera(){
+       Toast toast = Toast.makeText(this, "Got here!", Toast.LENGTH_SHORT);
+       toast.show();
        Intent intent = new Intent(this, CameraActivity.class);
        startActivity(intent);
    }
