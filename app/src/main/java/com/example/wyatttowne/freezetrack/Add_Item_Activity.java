@@ -347,8 +347,6 @@ public class Add_Item_Activity extends AppCompatActivity {
    }
 
    private void startCamera(){
-       Toast toast = Toast.makeText(this, "Got here!", Toast.LENGTH_SHORT);
-       toast.show();
        Intent intent = new Intent(this, CameraActivity.class);
        startActivity(intent);
    }

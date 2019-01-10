@@ -104,6 +104,7 @@ public class CameraActivity extends AppCompatActivity {
     }
 
     CameraDevice.StateCallback stateCallback = new CameraDevice.StateCallback() {
+
         @TargetApi(Build.VERSION_CODES.LOLLIPOP)
         @Override
         public void onOpened(@NonNull CameraDevice camera) {
@@ -119,6 +120,7 @@ public class CameraActivity extends AppCompatActivity {
         @TargetApi(Build.VERSION_CODES.LOLLIPOP)
         @Override
         public void onDisconnected(@NonNull CameraDevice camera) {
+
             cameraDevice.close();
         }
 
@@ -230,6 +232,5 @@ public class CameraActivity extends AppCompatActivity {
         handlerThread = null;
 
     }
-
 
 }
