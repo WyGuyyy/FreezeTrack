@@ -20,5 +20,7 @@
         android:layout_centerHorizontal="true"
         android:layout_marginTop="10dp"
         android:gravity="center"
-        android:text="CAPTURE" />
+        android:text="CAPTURE"
+        android:id="@+id/btnCapture"
+        />
 </RelativeLayout>

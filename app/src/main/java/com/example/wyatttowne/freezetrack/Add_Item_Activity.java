@@ -1,12 +1,17 @@
 package com.example.wyatttowne.freezetrack;
 
 import android.app.Activity;
+import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.graphics.Bitmap;
+import android.os.Environment;
+import android.provider.MediaStore;
+import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -22,6 +27,8 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.lang.reflect.Array;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -30,24 +37,17 @@ import java.util.Locale;
 
 public class Add_Item_Activity extends AppCompatActivity {
 
+    private static final int CAMERA_REQUEST = 1888;
+    private String sFileName;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add__item_);
 
         Spinner templates = (Spinner) findViewById(R.id.spTemplate);
-        ArrayList<String> templateList = new ArrayList<String>();
-        templateList.add("None");
 
-        //Add database connectivity
-
-        String[] templateArr = templateList.toArray(new String[0]);
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, templateArr);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        templates.setAdapter(adapter);
-
-        int spinnerPosition = adapter.getPosition("None");
-        templates.setSelection(spinnerPosition);
+        fillTemplates();
 
         templates.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -177,7 +177,7 @@ public class Add_Item_Activity extends AppCompatActivity {
        TextView start = (TextView)findViewById(R.id.tvStart);
        TextView finish = (TextView)findViewById(R.id.tvFinish);
 
-       String strName = name.getText().toString();
+       final String strName = name.getText().toString();
        String strDesc = desc.getText().toString();
        String strStart = start.getText().toString();
        String strFinish = finish.getText().toString();
@@ -191,12 +191,18 @@ public class Add_Item_Activity extends AppCompatActivity {
 
        try {
            parsedStartDate = formatter.parse(strStart); //HAPPENING HERE!!!
-           parsedFinishDate = formatter.parse(strFinish);
+
+           if(!strFinish.equals("None")){
+               parsedFinishDate = formatter.parse(strFinish);
+           }else{
+               parsedFinishDate = parsedStartDate;
+           }
+
        }catch(Exception ex){
            ex.printStackTrace();
        }
 
-       if(!parsedFinishDate.before(parsedStartDate)) {
+       if(parsedFinishDate.equals("None") || !parsedFinishDate.before(parsedStartDate)) {
 
            try {
 
@@ -221,7 +227,7 @@ public class Add_Item_Activity extends AppCompatActivity {
            builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                @Override
                public void onClick(DialogInterface dialog, int which) {
-                   startCamera();
+                   startCamera(strName);
                }
            });
 
@@ -242,6 +248,8 @@ public class Add_Item_Activity extends AppCompatActivity {
                TextView tvStart = (TextView) findViewById(R.id.tvStart);
                TextView tvFinish = (TextView) findViewById(R.id.tvFinish);
 
+               sFileName = etName.getText().toString();
+
                templates.setSelection(0);
                etName.setText("");
                etDesc.setText("");
@@ -259,6 +267,9 @@ public class Add_Item_Activity extends AppCompatActivity {
    }
 
    public void onChooseTemplate(AdapterView<?> parentView, View selectedItemView, int position, long id){
+
+       Toast toast2 = Toast.makeText(this, "I am in here", Toast.LENGTH_SHORT);
+       toast2.show();
 
        Spinner templates = (Spinner) findViewById(R.id.spTemplate);
        String selectedTemplate = templates.getSelectedItem().toString();
@@ -289,13 +300,13 @@ public class Add_Item_Activity extends AppCompatActivity {
            try {
 
                db = sqLiteOpenHelper.getReadableDatabase();
-               c = db.query("TEMPLATE", new String[]{"_id, NAME, DESCRIPTION, START, END"}, "NAME = ?", new String[]{selectedTemplate}, null, null, null);
+               c = db.query("TEMPLATE", new String[]{"_id, NAME, DESCRIPTION, START_DATE, END_DATE"}, "NAME = ?", new String[]{selectedTemplate}, null, null, null);
 
                if (c.moveToFirst()) {
                    name = c.getString(c.getColumnIndex("NAME"));
                    desc = c.getString(c.getColumnIndex("DESCRIPTION"));
-                   start = c.getString(c.getColumnIndex("START"));
-                   end = c.getString(c.getColumnIndex("END"));
+                   start = c.getString(c.getColumnIndex("START_DATE"));
+                   end = c.getString(c.getColumnIndex("END_DATE"));
                }
 
                db.close();
@@ -334,6 +345,9 @@ public class Add_Item_Activity extends AppCompatActivity {
            if(((FreezeDatabaseHelper) freezeDatabaseHelper).addATemplate(db, strName, strDesc, strStart, strFinish, image)){
                Toast toast = Toast.makeText(this, "Template name already exists. Please try a new name.", Toast.LENGTH_SHORT);
                toast.show();
+           }else{
+               Toast toast = Toast.makeText(this, "Template saved!", Toast.LENGTH_SHORT);
+               toast.show();
            }
 
            db.close();
@@ -343,13 +357,126 @@ public class Add_Item_Activity extends AppCompatActivity {
            toast.show();
        }
 
+       fillTemplates();
 
    }
 
-   private void startCamera(){
-       Intent intent = new Intent(this, CameraActivity.class);
-       startActivity(intent);
+   private void startCamera(String fileName){
+       /*Intent intent = new Intent(this, CameraActivity.class);
+       intent.putExtra("fileName", fileName);
+       startActivity(intent);*/
+
+       Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+       startActivityForResult(cameraIntent, CAMERA_REQUEST);
    }
 
 
-}
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == CAMERA_REQUEST && resultCode == RESULT_OK) {
+            Bitmap bitmap = (Bitmap) data.getExtras().get("data");
+
+            String fileName = sFileName; //Use name field for file name (Entered in Add_Item_Activity class)
+            final File file = new File(Environment.getExternalStorageDirectory()+"/FreezePics/" + fileName + ".jpg");
+            file.mkdir();
+
+            try{
+
+                FileOutputStream out = new FileOutputStream(file);
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
+                out.flush();
+                out.close();
+
+            }catch(Exception ex){
+                ex.printStackTrace();
+            }
+
+            savePictureName(fileName);
+
+        }
+
+        sFileName = "";
+
+   }
+
+    private void savePictureName(String fileName){
+
+        SQLiteOpenHelper freezeDatabaseHelper = new FreezeDatabaseHelper(this);
+
+        ContentValues freezeValues = new ContentValues();
+        freezeValues.put("IMAGE_NAME", fileName);
+
+        try{
+
+            SQLiteDatabase db = freezeDatabaseHelper.getWritableDatabase();
+            db.update("ITEM", freezeValues, "NAME=?", new String[]{fileName});
+            db.close();
+
+        }catch (SQLiteException ex){
+            Toast toast = Toast.makeText(this, "Database unavailable", Toast.LENGTH_SHORT);
+            toast.show();
+
+        }
+
+        Toast toast = Toast.makeText(this, "Photo saved!", Toast.LENGTH_SHORT);
+        toast.show();
+    }
+
+    private void fillTemplates(){
+
+        ArrayList<String> tempList = new ArrayList<String>();
+        tempList.add("None");
+
+        SQLiteOpenHelper freezeDatabaseHelper = new FreezeDatabaseHelper(this);
+
+        try{
+
+            SQLiteDatabase db = freezeDatabaseHelper.getReadableDatabase();
+            Cursor c = db.query("TEMPLATE", new String[]{"_id, NAME"}, null, null, null, null, null);
+
+            if(c.moveToFirst()){
+                tempList.add(c.getString(c.getColumnIndex("NAME")));
+                while(c.moveToNext()){
+                    tempList.add(c.getString(c.getColumnIndex("NAME")));
+                }
+            }
+
+            c.close();
+            db.close();
+
+        }catch(SQLiteException ex){
+            Toast toast = Toast.makeText(this, "Database unavailable", Toast.LENGTH_SHORT);
+            toast.show();
+        }
+
+        String name = "";
+        String desc = "";
+        String start = "";
+        String end = "";
+
+        EditText etName = (EditText) findViewById(R.id.etName);
+        EditText etDesc = (EditText) findViewById(R.id.etDescription);
+        TextView tvStart = (TextView) findViewById(R.id.tvStart);
+        TextView tvEnd = (TextView) findViewById(R.id.tvFinish);
+
+        name = etName.getText().toString();
+        desc = etDesc.getText().toString();
+        start = tvStart.getText().toString();
+        end = tvEnd.getText().toString();
+
+        Spinner templates = (Spinner) findViewById(R.id.spTemplate);
+
+        String[] templateArr = tempList.toArray(new String[0]);
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, templateArr);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        templates.setAdapter(adapter);
+
+        int spinnerPosition = adapter.getPosition(name);
+        templates.setSelection(spinnerPosition);
+
+    }
+
+
+    }
+

@@ -5,6 +5,8 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
+import android.widget.Toast;
 
 //Create thread here to update times of all items in database -> run on create database!!!
 
@@ -29,8 +31,8 @@ public class FreezeDatabaseHelper extends SQLiteOpenHelper{
 
     public void updateMyDatabase(SQLiteDatabase db, int oldVersion, int newVersion){
         if(oldVersion <= 1) {
-            db.execSQL("CREATE TABLE ITEM (_id INTEGER PRIMARY KEY AUTOINCREMENT, NAME TEXT, DESCRIPTION TEXT, START_DATE TEXT, END_DATE TEXT, IMAGE BLOB);");
-            db.execSQL("CREATE TABLE TEMPLATE (_id INTEGER PRIMARY KEY AUTOINCREMENT, NAME TEXT, DESCRIPTION TEXT, START_DATE TEXT, END_DATE TEXT, IMAGE BLOB);");
+            db.execSQL("CREATE TABLE ITEM (_id INTEGER PRIMARY KEY AUTOINCREMENT, NAME TEXT, DESCRIPTION TEXT, START_DATE TEXT, END_DATE TEXT, IMAGE_NAME TEXT);");
+            db.execSQL("CREATE TABLE TEMPLATE (_id INTEGER PRIMARY KEY AUTOINCREMENT, NAME TEXT, DESCRIPTION TEXT, START_DATE TEXT, END_DATE TEXT, IMAGE_NAME TEXT);");
         }
     }
 
@@ -58,7 +60,7 @@ public class FreezeDatabaseHelper extends SQLiteOpenHelper{
             freezeValues.put("DESCRIPTION", description);
             freezeValues.put("START_DATE", startDate);
             freezeValues.put("END_DATE", endDate);
-            freezeValues.put("IMAGE", image);
+            freezeValues.put("IMAGE_NAME", image);
             db.insert("ITEM", null, freezeValues);
             cursor.close();
             return doesExist;
@@ -92,8 +94,9 @@ public class FreezeDatabaseHelper extends SQLiteOpenHelper{
             freezeValues.put("DESCRIPTION", description);
             freezeValues.put("START_DATE", startDate);
             freezeValues.put("END_DATE", endDate);
-            freezeValues.put("IMAGE", image);
+            freezeValues.put("IMAGE_NAME", image);
             db.insert("TEMPLATE", null, freezeValues);
+            Log.d("TEST", name);
             cursor.close();
             return doesExist;
         }else{
