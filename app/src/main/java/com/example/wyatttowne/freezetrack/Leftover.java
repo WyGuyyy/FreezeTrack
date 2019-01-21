@@ -1,6 +1,7 @@
 package com.example.wyatttowne.freezetrack;
 
 import java.util.ArrayList;
+import java.util.Date;
 
 public class Leftover {
 
@@ -8,19 +9,23 @@ public class Leftover {
 
     String name;
     int days;
+    String startDate;
+    String endDate;
     String photoName;
 
     public Leftover(){}
 
-    public Leftover(String n, int d, String pn){
-        name = n;
-        days = d;
-        photoName = pn;
+    public Leftover(String name, int days, String startDate, String endDate, String photoName){
+        this.name = name;
+        this.days = days;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.photoName = photoName;
     }
 
-    public static void addLeftover(String name, int days, String photoName){
+    public static void addLeftover(String name, int days, String startDate, String endDate, String photoName){
 
-        Leftover tempL = new Leftover(name, days, photoName);
+        Leftover tempL = new Leftover(name, days, startDate, endDate, photoName);
         leftovers.add(tempL);
 
     }

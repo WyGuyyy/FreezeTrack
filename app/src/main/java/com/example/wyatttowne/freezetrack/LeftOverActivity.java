@@ -1,5 +1,6 @@
 package com.example.wyatttowne.freezetrack;
 
+import android.content.DialogInterface;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
@@ -10,8 +11,11 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.media.Image;
 import android.os.Environment;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -19,11 +23,14 @@ import android.widget.Toast;
 import java.io.File;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
 
 public class LeftOverActivity extends AppCompatActivity {
+
+    Button btnDelete;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,6 +38,32 @@ public class LeftOverActivity extends AppCompatActivity {
         setContentView(R.layout.activity_left_over);
 
         fillInfo();
+
+        btnDelete = (Button) findViewById(R.id.btnDelete);
+        btnDelete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(LeftOverActivity.this);
+                builder.setTitle("Are you sure you wish to delete item: " + getIntent().getStringExtra("Name") + "?");
+
+                builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        deleteItem();
+                    }
+                });
+
+                builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                    }
+                });
+
+                builder.show();
+            }
+        });
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
@@ -85,19 +118,27 @@ public class LeftOverActivity extends AppCompatActivity {
         txtEnd.setText(endDate);
 
         SimpleDateFormat formatter = new SimpleDateFormat("MMMM d, yyyy", Locale.ENGLISH);
-        Date parsedStartDate = null;
+        Date currentDate = new Date();
         Date parsedFinishDate = null;
 
+        Calendar cal1 = Calendar.getInstance();
+        Calendar cal2 = Calendar.getInstance();
+
         try {
-            parsedStartDate = formatter.parse(startDate);
 
             if (!endDate.equals("None")) {
                 parsedFinishDate = formatter.parse(endDate);
 
-                if(parsedFinishDate.before(new Date())){
+                cal1.setTime(currentDate);
+                cal2.setTime(parsedFinishDate);
+
+                if(!(cal1.get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR) && cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR)) ||
+                        (cal1.get(android.icu.util.Calendar.DAY_OF_YEAR) > cal2.get(Calendar.DAY_OF_YEAR) && cal1.get(Calendar.YEAR) >= cal2.get(Calendar.YEAR))){
+
                     txtStatus.setText("EXPIRED");
                     txtStatus.setTextColor(Color.RED);
                     txtStatus.setTypeface(null, Typeface.BOLD);
+
                 }else{
                     txtStatus.setText("GOOD");
                     txtStatus.setTextColor(Color.GREEN);
@@ -105,8 +146,8 @@ public class LeftOverActivity extends AppCompatActivity {
                 }
 
             }else {
-                parsedFinishDate = parsedStartDate;
-                txtStatus.setText("No expiration date set.");
+                parsedFinishDate = currentDate;
+                txtStatus.setText("No expiration date.");
             }
 
         } catch (ParseException e) {
@@ -123,5 +164,27 @@ public class LeftOverActivity extends AppCompatActivity {
             imgLeftover.setImageResource(R.drawable.food_image);
         }
 
+    }
+
+    public void deleteItem(){
+
+        SQLiteOpenHelper freezeDatabaseHelper = new FreezeDatabaseHelper(this);
+        SQLiteDatabase db;
+
+        try{
+
+            db = freezeDatabaseHelper.getWritableDatabase();
+            db.delete("ITEM", "NAME=?", new String[]{getIntent().getStringExtra("Name")});
+            db.close();
+
+        }catch(SQLiteException ex){
+            Toast toast = Toast.makeText(this, "Database unavailable", Toast.LENGTH_SHORT);
+            toast.show();
+        }
+
+        Toast toast = Toast.makeText(this, "Item deleted!", Toast.LENGTH_SHORT);
+        toast.show();
+
+        finish();
     }
 }

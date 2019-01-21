@@ -52,6 +52,7 @@ public class WatchBoard extends AppCompatActivity {
 
         String name = "";
         String startDate = "";
+        String endDate = "";
         String imageName = "";
 
         int activeDays = 0;
@@ -59,28 +60,30 @@ public class WatchBoard extends AppCompatActivity {
         try{
 
             db = freezeDatabaseHelper.getReadableDatabase();
-            c = db.query("ITEM", new String[]{"_id, NAME, START_DATE, IMAGE_NAME"}, null, null, null, null, null);
+            c = db.query("ITEM", new String[]{"_id, NAME, START_DATE, END_DATE, IMAGE_NAME"}, null, null, null, null, null);
 
             if(c.moveToFirst()){
 
                 name = c.getString(c.getColumnIndex("NAME"));
                 startDate = c.getString(c.getColumnIndex("START_DATE"));
+                endDate = c.getString(c.getColumnIndex("END_DATE"));
                 imageName = c.getString(c.getColumnIndex("IMAGE_NAME"));
 
                 activeDays = getDaysActive(startDate);
 
-                Leftover lv = new Leftover(name, activeDays, imageName);
+                Leftover lv = new Leftover(name, activeDays, startDate, endDate, imageName);
                 tempList.add(lv);
 
                 while(c.moveToNext()){
 
                     name = c.getString(c.getColumnIndex("NAME"));
                     startDate = c.getString(c.getColumnIndex("START_DATE"));
+                    endDate = c.getString(c.getColumnIndex("END_DATE"));
                     imageName = c.getString(c.getColumnIndex("IMAGE_NAME"));
 
                     activeDays = getDaysActive(startDate);
 
-                    lv = new Leftover(name, activeDays, imageName);
+                    lv = new Leftover(name, activeDays, startDate, endDate, imageName);
                     tempList.add(lv);
 
                 }
@@ -119,5 +122,11 @@ public class WatchBoard extends AppCompatActivity {
 
         return daysBetween;
 
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        fillCards();
     }
 }
