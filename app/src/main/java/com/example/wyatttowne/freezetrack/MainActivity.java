@@ -35,7 +35,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onStartWatchboard(View view){
-        Intent intent = new Intent(this, WatchboardActivity.class);
+        Intent intent = new Intent(this, WatchBoard.class);
         startActivity(intent);
     }
 

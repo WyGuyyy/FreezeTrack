@@ -1,9 +1,11 @@
 package com.example.wyatttowne.freezetrack;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
@@ -12,7 +14,9 @@ import android.graphics.Bitmap;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -29,6 +33,7 @@ import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.lang.reflect.Array;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -38,6 +43,8 @@ import java.util.Locale;
 public class Add_Item_Activity extends AppCompatActivity {
 
     private static final int CAMERA_REQUEST = 1888;
+    private static final int WRITE_REQUEST = 2888;
+    private static final int READ_REQUEST = 3888;
     private String sFileName;
 
     @Override
@@ -48,6 +55,19 @@ public class Add_Item_Activity extends AppCompatActivity {
         Spinner templates = (Spinner) findViewById(R.id.spTemplate);
 
         fillTemplates();
+
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_DENIED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, CAMERA_REQUEST);
+        }
+
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, WRITE_REQUEST);
+        }
+
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, READ_REQUEST);
+        }
+
 
         templates.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -189,87 +209,89 @@ public class Add_Item_Activity extends AppCompatActivity {
        Date parsedStartDate = null;
        Date parsedFinishDate = null;
 
-       try {
-           parsedStartDate = formatter.parse(strStart); //HAPPENING HERE!!!
-
-           if(!strFinish.equals("None")){
-               parsedFinishDate = formatter.parse(strFinish);
-           }else{
-               parsedFinishDate = parsedStartDate;
-           }
-
-       }catch(Exception ex){
-           ex.printStackTrace();
-       }
-
-       if(parsedFinishDate.equals("None") || !parsedFinishDate.before(parsedStartDate)) {
+       if(!strName.equals("") && !strStart.equals("") && !strFinish.equals("")) {
 
            try {
+               parsedStartDate = formatter.parse(strStart);
 
-               SQLiteOpenHelper freezeDatabaseHelper = new FreezeDatabaseHelper(this);
-               SQLiteDatabase db = freezeDatabaseHelper.getWritableDatabase();
+               if (!strFinish.equals("None")) {
+                   parsedFinishDate = formatter.parse(strFinish);
+               } else {
+                   parsedFinishDate = parsedStartDate;
+               }
 
-               if ((exists = ((FreezeDatabaseHelper) freezeDatabaseHelper).addAnItem(db, strName, strDesc, strStart, strFinish, image))) {
-                   Toast toast = Toast.makeText(this, "Item name already exists. Please try a new name.", Toast.LENGTH_LONG);
+           } catch (Exception ex) {
+               ex.printStackTrace();
+           }
+
+           if (parsedFinishDate.equals("None") || !parsedFinishDate.before(parsedStartDate)) {
+
+               try {
+
+                   SQLiteOpenHelper freezeDatabaseHelper = new FreezeDatabaseHelper(this);
+                   SQLiteDatabase db = freezeDatabaseHelper.getWritableDatabase();
+
+                   if ((exists = ((FreezeDatabaseHelper) freezeDatabaseHelper).addAnItem(db, strName, strDesc, strStart, strFinish, image))) {
+                       Toast toast = Toast.makeText(this, "Item name already exists. Please try a new name.", Toast.LENGTH_LONG);
+                       toast.show();
+                   }
+
+                   db.close();
+
+               } catch (SQLiteException ex) {
+                   Toast toast = Toast.makeText(this, "Database unavailable.", Toast.LENGTH_SHORT);
                    toast.show();
                }
 
-               db.close();
+               if (!exists) {
+                   AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                   builder.setTitle("Add a Photo?");
 
-           } catch (SQLiteException ex) {
-               Toast toast = Toast.makeText(this, "Database unavailable.", Toast.LENGTH_SHORT);
+                   builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                       @Override
+                       public void onClick(DialogInterface dialog, int which) {
+                           startCamera(strName);
+                       }
+                   });
+
+                   builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                       @Override
+                       public void onClick(DialogInterface dialog, int which) {
+
+                       }
+                   });
+
+                   builder.show();
+
+                   Spinner templates = (Spinner) findViewById(R.id.spTemplate);
+                   EditText etName = (EditText) findViewById(R.id.etName);
+                   EditText etDesc = (EditText) findViewById(R.id.etDescription);
+                   TextView tvStart = (TextView) findViewById(R.id.tvStart);
+                   TextView tvFinish = (TextView) findViewById(R.id.tvFinish);
+
+                   sFileName = etName.getText().toString();
+
+                   templates.setSelection(0);
+                   etName.setText("");
+                   etDesc.setText("");
+                   tvStart.setText("");
+                   tvFinish.setText("");
+
+                   Toast toast = Toast.makeText(this, "Item saved!", Toast.LENGTH_LONG);
+                   toast.show();
+               }
+
+           } else {
+               Toast toast = Toast.makeText(this, "Expiration date must be the same as or later than the start date. Item not saved.", Toast.LENGTH_LONG);
                toast.show();
            }
-
-           AlertDialog.Builder builder = new AlertDialog.Builder(this);
-           builder.setTitle("Add a Photo?");
-
-           builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-               @Override
-               public void onClick(DialogInterface dialog, int which) {
-                   startCamera(strName);
-               }
-           });
-
-           builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
-               @Override
-               public void onClick(DialogInterface dialog, int which) {
-
-               }
-           });
-
-           builder.show();
-
-
-           if(!exists) {
-               Spinner templates = (Spinner) findViewById(R.id.spTemplate);
-               EditText etName = (EditText) findViewById(R.id.etName);
-               EditText etDesc = (EditText) findViewById(R.id.etDescription);
-               TextView tvStart = (TextView) findViewById(R.id.tvStart);
-               TextView tvFinish = (TextView) findViewById(R.id.tvFinish);
-
-               sFileName = etName.getText().toString();
-
-               templates.setSelection(0);
-               etName.setText("");
-               etDesc.setText("");
-               tvStart.setText("");
-               tvFinish.setText("");
-
-               Toast toast = Toast.makeText(this, "Item saved!", Toast.LENGTH_LONG);
-               toast.show();
-           }
-
        }else{
-           Toast toast = Toast.makeText(this, "Expiration date must be the same as or later than the start date. Item not saved.", Toast.LENGTH_LONG);
+           Toast toast = Toast.makeText(this, "Some required fields are not filled", Toast.LENGTH_LONG);
            toast.show();
        }
    }
 
    public void onChooseTemplate(AdapterView<?> parentView, View selectedItemView, int position, long id){
-
-       Toast toast2 = Toast.makeText(this, "I am in here", Toast.LENGTH_SHORT);
-       toast2.show();
 
        Spinner templates = (Spinner) findViewById(R.id.spTemplate);
        String selectedTemplate = templates.getSelectedItem().toString();
@@ -361,13 +383,18 @@ public class Add_Item_Activity extends AppCompatActivity {
 
    }
 
-   private void startCamera(String fileName){
+   private void startCamera(String fileName) {
        /*Intent intent = new Intent(this, CameraActivity.class);
        intent.putExtra("fileName", fileName);
        startActivity(intent);*/
 
-       Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-       startActivityForResult(cameraIntent, CAMERA_REQUEST);
+       if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_DENIED) {
+           Toast toast = Toast.makeText(this, "Camera permission was denied. Please close add item window and re-open to register permission. Item will be saved without a photo.", Toast.LENGTH_LONG);
+           toast.show();
+       } else {
+           Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+           startActivityForResult(cameraIntent, CAMERA_REQUEST);
+       }
    }
 
 
@@ -378,14 +405,23 @@ public class Add_Item_Activity extends AppCompatActivity {
             Bitmap bitmap = (Bitmap) data.getExtras().get("data");
 
             String fileName = sFileName; //Use name field for file name (Entered in Add_Item_Activity class)
-            final File file = new File(Environment.getExternalStorageDirectory()+"/FreezePics/" + fileName + ".jpg");
-            file.mkdir();
+            File file = new File(Environment.getExternalStorageDirectory()+ File.separator + "FreezePics");//fileName.replace(" ","_") + ".jpg");
+
+            if(!file.exists()) {
+                file.mkdirs();
+            }
+
+            File pictureFile = new File(file, fileName.replace(" ", "_"));
+            try {
+                pictureFile.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
 
             try{
 
-                FileOutputStream out = new FileOutputStream(file);
+                FileOutputStream out = new FileOutputStream(pictureFile);
                 bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
-                out.flush();
                 out.close();
 
             }catch(Exception ex){

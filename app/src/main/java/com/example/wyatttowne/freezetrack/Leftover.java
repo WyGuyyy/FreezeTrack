@@ -7,20 +7,20 @@ public class Leftover {
     public static ArrayList<Leftover> leftovers = new ArrayList<Leftover>();
 
     String name;
-    String time;
+    int days;
     String photoName;
 
     public Leftover(){}
 
-    public Leftover(String n, String t, String pn){
+    public Leftover(String n, int d, String pn){
         name = n;
-        time = t;
+        days = d;
         photoName = pn;
     }
 
-    public static void addLeftover(String name, String time, String photoName){
+    public static void addLeftover(String name, int days, String photoName){
 
-        Leftover tempL = new Leftover(name, time, photoName);
+        Leftover tempL = new Leftover(name, days, photoName);
         leftovers.add(tempL);
 
     }

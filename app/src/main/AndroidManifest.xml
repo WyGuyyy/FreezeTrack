@@ -33,7 +33,12 @@
         <activity
             android:name=".CameraActivity"
             android:parentActivityName=".MainActivity" />
-        <activity android:name=".WatchBoard"></activity>
+        <activity
+            android:name=".WatchBoard"
+            android:parentActivityName=".MainActivity" />
+        <activity android:name=".LeftOverActivity"
+                  android:parentActivityName=".WatchBoard"
+            ></activity>
     </application>
 
 </manifest>
