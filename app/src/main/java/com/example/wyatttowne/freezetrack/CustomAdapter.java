@@ -15,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.File;
 import java.text.ParseException;
@@ -89,9 +90,10 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.LeftoverHo
         File dir = new File(Environment.getExternalStorageDirectory()+ "/FreezePics");
         File imgFile = new File(dir, leftovers.get(position).photoName.replace(" ", "_"));
 
-        if(imgFile.exists()) {
+        if(imgFile.exists() && !leftovers.get(position).photoName.equals("")) {
             Bitmap bitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
             holder.leftoverImage.setImageBitmap(bitmap);
+            Log.d("filepath", imgFile.getAbsolutePath());
         }else{
             holder.leftoverImage.setImageResource(R.drawable.food_image);
         }

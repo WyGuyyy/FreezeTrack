@@ -41,10 +41,10 @@ public class DatePickerFragment extends DialogFragment
 
     public void onDateSet(DatePicker view, int year, int month, int day) {
         Calendar c = Calendar.getInstance();
-    c.set(Calendar.YEAR, year);
-    c.set(Calendar.MONTH, month);
-    c.set(Calendar.DAY_OF_MONTH, day);
-    String currentDateString = DateFormat.getDateInstance().format(c.getTime());
+        c.set(Calendar.YEAR, year);
+        c.set(Calendar.MONTH, month);
+        c.set(Calendar.DAY_OF_MONTH, day);
+        String currentDateString = DateFormat.getDateInstance().format(c.getTime());
 
     final Bundle bdl = getArguments();
 

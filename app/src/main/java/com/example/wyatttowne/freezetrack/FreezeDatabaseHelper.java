@@ -33,6 +33,8 @@ public class FreezeDatabaseHelper extends SQLiteOpenHelper{
         if(oldVersion <= 1) {
             db.execSQL("CREATE TABLE ITEM (_id INTEGER PRIMARY KEY AUTOINCREMENT, NAME TEXT, DESCRIPTION TEXT, START_DATE TEXT, END_DATE TEXT, IMAGE_NAME TEXT);");
             db.execSQL("CREATE TABLE TEMPLATE (_id INTEGER PRIMARY KEY AUTOINCREMENT, NAME TEXT, DESCRIPTION TEXT, START_DATE TEXT, END_DATE TEXT, IMAGE_NAME TEXT);");
+            db.execSQL("CREATE TABLE SETTINGS (_id INTEGER PRIMARY KEY AUTOINCREMENT, WARNING_STATUS INTEGER, EXPIRED_STATUS INTEGER, NOTIFY_TIME TEXT);");
+            updateSettings(db, 1, 1, "1 Hour");
         }
     }
 
@@ -103,6 +105,16 @@ public class FreezeDatabaseHelper extends SQLiteOpenHelper{
             cursor.close();
             return doesExist;
         }
+    }
+
+    public void updateSettings(SQLiteDatabase db, int warning, int expired, String time){
+
+            ContentValues freezeValues = new ContentValues();
+            freezeValues.put("WARNING_STATUS", warning);
+            freezeValues.put("EXPIRED_STATUS", expired);
+            freezeValues.put("NOTIFY_TIME", time);
+            db.insert("SETTINGS", null, freezeValues);
+
     }
 
 }

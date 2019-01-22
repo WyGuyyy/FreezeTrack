@@ -22,12 +22,6 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".WatchboardActivity"
-            android:parentActivityName=".MainActivity" />
-        <activity
-            android:name=".ItemActivity"
-            android:parentActivityName=".MainActivity" />
-        <activity
             android:name=".Add_Item_Activity"
             android:parentActivityName=".MainActivity" />
         <activity
@@ -36,9 +30,13 @@
         <activity
             android:name=".WatchBoard"
             android:parentActivityName=".MainActivity" />
-        <activity android:name=".LeftOverActivity"
-                  android:parentActivityName=".WatchBoard"
-            ></activity>
+        <activity
+            android:name=".LeftOverActivity"
+            android:parentActivityName=".WatchBoard" />
+        <activity
+            android:name=".PersonalReminderActivity"
+            android:parentActivityName=".MainActivity" />
+        <activity android:name=".SettingsActivity"></activity>
     </application>
 
 </manifest>
