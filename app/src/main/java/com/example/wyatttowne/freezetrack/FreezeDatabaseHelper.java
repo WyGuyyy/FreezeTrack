@@ -30,10 +30,11 @@ public class FreezeDatabaseHelper extends SQLiteOpenHelper{
     }
 
     public void updateMyDatabase(SQLiteDatabase db, int oldVersion, int newVersion){
-        if(oldVersion <= 1) {
+        if(oldVersion <= 2) {
             db.execSQL("CREATE TABLE ITEM (_id INTEGER PRIMARY KEY AUTOINCREMENT, NAME TEXT, DESCRIPTION TEXT, START_DATE TEXT, END_DATE TEXT, IMAGE_NAME TEXT);");
             db.execSQL("CREATE TABLE TEMPLATE (_id INTEGER PRIMARY KEY AUTOINCREMENT, NAME TEXT, DESCRIPTION TEXT, START_DATE TEXT, END_DATE TEXT, IMAGE_NAME TEXT);");
             db.execSQL("CREATE TABLE SETTINGS (_id INTEGER PRIMARY KEY AUTOINCREMENT, WARNING_STATUS INTEGER, EXPIRED_STATUS INTEGER, NOTIFY_TIME TEXT);");
+            Log.d("what", "I am here");
             updateSettings(db, 1, 1, "1 Hour");
         }
     }

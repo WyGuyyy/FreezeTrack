@@ -126,7 +126,7 @@ public class SettingsActivity extends AppCompatActivity {
 
             try {
 
-                db = freezeDatabaseHelper.getReadableDatabase();
+                db = freezeDatabaseHelper.getWritableDatabase();
                 ((FreezeDatabaseHelper) freezeDatabaseHelper).updateSettings(db, w, e, selectedTime);
                 db.close();
 
