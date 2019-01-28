@@ -66,7 +66,7 @@ public class SettingsActivity extends AppCompatActivity {
     public void initialize(){
 
         SQLiteOpenHelper freezeDatabaseHelper = new FreezeDatabaseHelper(this);
-        String[] timeValues = {"1 Hour", "2 Hours", "4 hours", "8 Hours", "1 Day"};
+        String[] timeValues = {"1 Day", "2 Days", "3 Days", "4 Days", "5 Days", "6 Days", "1 Week"};
 
         try{
 
