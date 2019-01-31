@@ -42,18 +42,20 @@ public class NotificationService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
 
-        if(!isMyServiceRunning(NotificationService.class)) {
+        Toast toast = Toast.makeText(getApplicationContext(), String.valueOf(isMyServiceRunning(NotificationService.class)), Toast.LENGTH_SHORT);
+        toast.show();
+
+        if (!isMyServiceRunning(NotificationService.class)) {
             startNotificationService();
         }
-
         return START_STICKY;
     }
 
     @Override
     public void onDestroy() {
-
         notificationThread.interrupt();
-
+        Toast toast = Toast.makeText(getApplicationContext(), "Service stopped!", Toast.LENGTH_SHORT);
+        toast.show();
     }
 
 
@@ -63,8 +65,11 @@ public class NotificationService extends Service {
         return null;
     }
 
-
+    //FOR SERVICE NEED WAY TO NOTIFY UPON SUDDEN SERVICE ENABLED OR DISABLED!!!!!
     private void startNotificationService() {
+
+        Toast toast = Toast.makeText(getApplicationContext(), "Service is running!", Toast.LENGTH_SHORT);
+        toast.show();
 
         updateChecks(); //Start here next time... need to finish service implementation
 
@@ -72,16 +77,16 @@ public class NotificationService extends Service {
         final Calendar c1 = Calendar.getInstance();
         c1.setTime(d1);
 
-        notificationThread = new Thread(){
+        notificationThread = new Thread() {
 
             @Override
-            public void run(){
+            public void run() {
 
                 boolean newDay = false;
 
-                while(true) {
+                while (true) {
 
-                    if((c1.get(Calendar.HOUR_OF_DAY) == 1 && c1.get(Calendar.MINUTE) == 1 && c1.get(Calendar.SECOND) >= 1 && c1.get(Calendar.SECOND) <= 10)){
+                    if ((c1.get(Calendar.HOUR_OF_DAY) == 1 && c1.get(Calendar.MINUTE) == 1 && c1.get(Calendar.SECOND) >= 1 && c1.get(Calendar.SECOND) <= 10)) {
                         newDay = true;
 
                         try {
@@ -90,7 +95,7 @@ public class NotificationService extends Service {
                             e.printStackTrace();
                         }
 
-                    }else{
+                    } else {
                         newDay = false;
                     }
 
@@ -102,8 +107,9 @@ public class NotificationService extends Service {
                         expireItems();
                     }
 
-                    if (timeToUpdate && newDay) {
+                    if (timeToUpdate) {
                         updateChecks();
+                        timeToUpdate = false;
                     }
                 }
             }
@@ -116,24 +122,28 @@ public class NotificationService extends Service {
 
     private boolean isMyServiceRunning(Class<?> serviceClass) {
         ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        Toast toast = Toast.makeText(getApplicationContext(), "In start command!", Toast.LENGTH_SHORT);
+        toast.show();
         for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
             if (serviceClass.getName().equals(service.service.getClassName())) {
+                Toast toast2 = Toast.makeText(getApplicationContext(), "Is true!", Toast.LENGTH_SHORT);
+                toast2.show();
                 return true;
             }
         }
         return false;
     }
 
-    private void updateChecks(){
+    private void updateChecks() {
 
         SQLiteOpenHelper freezeDatabaseHelper = new FreezeDatabaseHelper(getApplicationContext());
         SQLiteDatabase db;
 
-        try{
+        try {
             db = freezeDatabaseHelper.getReadableDatabase();
-            Cursor c = db.query("SETTINGS", new String[] {"_id, WARNING_STATUS, EXPIRED_STATUS, NOTIFY_TIME"}, null, null, null, null, null);
+            Cursor c = db.query("SETTINGS", new String[]{"_id, WARNING_STATUS, EXPIRED_STATUS, NOTIFY_TIME"}, null, null, null, null, null);
 
-            if(c.moveToFirst()){
+            if (c.moveToFirst()) {
 
                 notifyTime = c.getString(c.getColumnIndex("NOTIFY_TIME"));
                 warningOn = (c.getInt(c.getColumnIndex("WARNING_STATUS")) == 1 ? true : false);
@@ -144,25 +154,25 @@ public class NotificationService extends Service {
             c.close();
             db.close();
 
-        }catch(SQLiteException ex){
+        } catch (SQLiteException ex) {
             Toast toast = Toast.makeText(getApplicationContext(), "Database unavailable", Toast.LENGTH_SHORT);
             toast.show();
         }
 
     }
 
-    private void warnItems(){
+    private void warnItems() {
         SQLiteOpenHelper freezeDatabaseHelper = new FreezeDatabaseHelper(getApplicationContext());
         SQLiteDatabase db;
 
         int addTime = 0;
         int countWarning = 0;
 
-        try{
+        try {
             db = freezeDatabaseHelper.getReadableDatabase();
             Cursor c = db.query("ITEM", new String[]{"_id, NAME, START_DATE, END_DATE, IMAGE_NAME"}, null, null, null, null, null);
 
-            if(c.moveToFirst()){
+            if (c.moveToFirst()) {
 
                 SimpleDateFormat formatter = new SimpleDateFormat("MMMM d, yyyy", Locale.ENGLISH);
 
@@ -191,42 +201,42 @@ public class NotificationService extends Service {
                     if (cal1.get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR) && cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR) ||
                             (cal1.get(android.icu.util.Calendar.DAY_OF_YEAR) > cal2.get(Calendar.DAY_OF_YEAR) && cal1.get(Calendar.YEAR) >= cal2.get(Calendar.YEAR))) {
 
-                            countWarning++;
+                        countWarning++;
 
-                            long diff = cal2.getTime().getTime() - cal1.getTime().getTime();
-                            float days = (diff / (1000*60*60*24));
-                            int intDays = (int) days;
+                        long diff = cal2.getTime().getTime() - cal1.getTime().getTime();
+                        float days = (diff / (1000 * 60 * 60 * 24));
+                        int intDays = (int) days;
 
-                            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
-                                NotificationChannel warningChannel = new NotificationChannel(
-                                        "channel" + c.getString(c.getColumnIndex("NAME")),
-                                        "Channel " + c.getString(c.getColumnIndex("NAME")),
-                                        NotificationManager.IMPORTANCE_HIGH
-                                );
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                            NotificationChannel warningChannel = new NotificationChannel(
+                                    "channel" + c.getString(c.getColumnIndex("NAME")),
+                                    "Channel " + c.getString(c.getColumnIndex("NAME")),
+                                    NotificationManager.IMPORTANCE_HIGH
+                            );
 
-                                warningChannel.setDescription("Channel for " + c.getString(c.getColumnIndex("NAME")));
+                            warningChannel.setDescription("Channel for " + c.getString(c.getColumnIndex("NAME")));
 
-                                NotificationManager manager = getSystemService(NotificationManager.class);
-                                manager.createNotificationChannel(warningChannel);
-                            }
+                            NotificationManager manager = getSystemService(NotificationManager.class);
+                            manager.createNotificationChannel(warningChannel);
+                        }
 
                         NotificationManagerCompat notificationManagerCompat = NotificationManagerCompat.from(getApplicationContext());
 
                         Notification notification = new NotificationCompat.Builder(getApplicationContext(), "channel" + c.getString(c.getColumnIndex("NAME")))
                                 .setSmallIcon(R.drawable.ic_food)
                                 .setContentTitle("EXPIRATION WARNING!")
-                                .setContentText("Heads up! It looks like your item " +  c.getString(c.getColumnIndex("NAME")) + " is about to expire in " + intDays + " days.")
+                                .setContentText("Heads up! It looks like your item " + c.getString(c.getColumnIndex("NAME")) + " is about to expire in " + intDays + " days.")
                                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                                 .setCategory(NotificationCompat.CATEGORY_MESSAGE)
                                 .build();
 
                         notificationManagerCompat.notify(countWarning, notification);
 
-                            //Send notification to phone
+                        //Send notification to phone
                     }
                 }
 
-                while(c.moveToNext()){
+                while (c.moveToNext()) {
 
                     formatter = new SimpleDateFormat("MMMM d, yyyy", Locale.ENGLISH);
 
@@ -248,10 +258,10 @@ public class NotificationService extends Service {
                             countWarning++;
 
                             long diff = cal2.getTime().getTime() - cal1.getTime().getTime();
-                            float days = (diff / (1000*60*60*24));
+                            float days = (diff / (1000 * 60 * 60 * 24));
                             int intDays = (int) days;
 
-                            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                                 NotificationChannel warningChannel = new NotificationChannel(
                                         "channel" + c.getString(c.getColumnIndex("NAME")),
                                         "Channel " + c.getString(c.getColumnIndex("NAME")),
@@ -269,7 +279,7 @@ public class NotificationService extends Service {
                             Notification notification = new NotificationCompat.Builder(getApplicationContext(), "channel" + c.getString(c.getColumnIndex("NAME")))
                                     .setSmallIcon(R.drawable.ic_food)
                                     .setContentTitle("EXPIRATION WARNING!")
-                                    .setContentText("Heads up! It looks like your item " +  c.getString(c.getColumnIndex("NAME")) + " is about to expire in " + intDays + " days.")
+                                    .setContentText("Heads up! It looks like your item " + c.getString(c.getColumnIndex("NAME")) + " is about to expire in " + intDays + " days.")
                                     .setPriority(NotificationCompat.PRIORITY_HIGH)
                                     .setCategory(NotificationCompat.CATEGORY_MESSAGE)
                                     .build();
@@ -287,23 +297,23 @@ public class NotificationService extends Service {
             c.close();
             db.close();
 
-        }catch(SQLiteException ex){
+        } catch (SQLiteException ex) {
             Toast toast = Toast.makeText(getApplicationContext(), "Database unavailable", Toast.LENGTH_SHORT);
             toast.show();
         }
     }
 
-    private void expireItems(){ //Need to clean up notification section for this method
+    private void expireItems() { //Need to clean up notification section for this method
         SQLiteOpenHelper freezeDatabaseHelper = new FreezeDatabaseHelper(getApplicationContext());
         SQLiteDatabase db;
 
         int countExpire = 0;
 
-        try{
+        try {
             db = freezeDatabaseHelper.getReadableDatabase();
             Cursor c = db.query("ITEM", new String[]{"_id, NAME, START_DATE, END_DATE, IMAGE_NAME"}, null, null, null, null, null);
 
-            if(c.moveToFirst()){
+            if (c.moveToFirst()) {
 
                 SimpleDateFormat formatter = new SimpleDateFormat("MMMM d, yyyy", Locale.ENGLISH);
 
@@ -324,7 +334,7 @@ public class NotificationService extends Service {
 
                         countExpire++;
 
-                        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                             NotificationChannel warningChannel = new NotificationChannel(
                                     "channel" + c.getString(c.getColumnIndex("NAME")),
                                     "Channel " + c.getString(c.getColumnIndex("NAME")),
@@ -342,7 +352,7 @@ public class NotificationService extends Service {
                         Notification notification = new NotificationCompat.Builder(getApplicationContext(), "channel" + c.getString(c.getColumnIndex("NAME")))
                                 .setSmallIcon(R.drawable.ic_food)
                                 .setContentTitle("EXPIRATION WARNING!")
-                                .setContentText("Uh oh! It looks like your item " +  c.getString(c.getColumnIndex("NAME")) + " has expired!")
+                                .setContentText("Uh oh! It looks like your item " + c.getString(c.getColumnIndex("NAME")) + " has expired!")
                                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                                 .setCategory(NotificationCompat.CATEGORY_MESSAGE)
                                 .build();
@@ -353,7 +363,7 @@ public class NotificationService extends Service {
                     }
                 }
 
-                while(c.moveToNext()){
+                while (c.moveToNext()) {
 
                     formatter = new SimpleDateFormat("MMMM d, yyyy", Locale.ENGLISH);
 
@@ -374,7 +384,7 @@ public class NotificationService extends Service {
 
                             countExpire++;
 
-                            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                                 NotificationChannel warningChannel = new NotificationChannel(
                                         "channel" + c.getString(c.getColumnIndex("NAME")),
                                         "Channel " + c.getString(c.getColumnIndex("NAME")),
@@ -392,7 +402,7 @@ public class NotificationService extends Service {
                             Notification notification = new NotificationCompat.Builder(getApplicationContext(), "channel" + c.getString(c.getColumnIndex("NAME")))
                                     .setSmallIcon(R.drawable.ic_food)
                                     .setContentTitle("EXPIRATION WARNING!")
-                                    .setContentText("Uh oh! It looks like your item " +  c.getString(c.getColumnIndex("NAME")) + " has expired!")
+                                    .setContentText("Uh oh! It looks like your item " + c.getString(c.getColumnIndex("NAME")) + " has expired!")
                                     .setPriority(NotificationCompat.PRIORITY_HIGH)
                                     .setCategory(NotificationCompat.CATEGORY_MESSAGE)
                                     .build();
@@ -410,14 +420,14 @@ public class NotificationService extends Service {
             c.close();
             db.close();
 
-        }catch(SQLiteException ex){
+        } catch (SQLiteException ex) {
             Toast toast = Toast.makeText(getApplicationContext(), "Database unavailable", Toast.LENGTH_SHORT);
             toast.show();
         }
     }
 
 
-    public static void notifyService(){
+    public static void notifyService() {
         timeToUpdate = true;
     }
 

@@ -135,6 +135,7 @@ public class SettingsActivity extends AppCompatActivity {
                 toast.show();
             }
 
+            NotificationService.notifyService();
     }
 
 

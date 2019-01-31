@@ -46,6 +46,7 @@
         <service android:name=".NotificationService"
                  android:exported="false"
             ></service>
+        <receiver android:name=".NotificationReceiver"></receiver>
     </application>
 
 </manifest>
