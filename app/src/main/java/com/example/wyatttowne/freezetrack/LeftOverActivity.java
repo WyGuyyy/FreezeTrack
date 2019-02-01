@@ -81,7 +81,7 @@ public class LeftOverActivity extends AppCompatActivity {
         TextView txtEnd = (TextView) findViewById(R.id.txtFinish);
         TextView txtStatus = (TextView) findViewById(R.id.txtStatus);
 
-        ImageView imgLeftover = (ImageView) findViewById(R.id.leftover_image);
+        ImageView imgLeftover = (ImageView) findViewById(R.id.leftover_image_inner);
 
         String name = getIntent().getStringExtra("Name");
         String desc = "";

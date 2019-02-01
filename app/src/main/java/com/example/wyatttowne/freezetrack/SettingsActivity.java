@@ -77,8 +77,12 @@ public class SettingsActivity extends AppCompatActivity {
 
                 if(c.getInt(c.getColumnIndex("WARNING_STATUS")) == 1){
                     swWarning.setChecked(true);
+                    spTime.setEnabled(true);
+                    spTime.setClickable(true);
                 }else{
                     swWarning.setChecked(false);
+                    spTime.setEnabled(false);
+                    spTime.setClickable(false);
                 }
 
                 if(c.getInt(c.getColumnIndex("EXPIRED_STATUS")) == 1){
@@ -118,6 +122,11 @@ public class SettingsActivity extends AppCompatActivity {
 
         if(swWarning.isChecked()){
             w = 1;
+            spTime.setEnabled(true);
+            spTime.setClickable(true);
+        }else{
+            spTime.setEnabled(false);
+            spTime.setClickable(false);
         }
 
         if(swExpired.isChecked()){

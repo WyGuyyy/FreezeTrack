@@ -7,24 +7,43 @@
     android:background="@drawable/custom_watchboard_background"
     tools:context=".LeftOverActivity">
 
-    <ImageView
+    <android.support.constraint.ConstraintLayout
         android:id="@+id/leftover_image"
-        android:layout_width="150dp"
-        android:layout_height="150dp"
+        android:layout_width="125dp"
+        android:layout_height="160dp"
         android:layout_marginStart="8dp"
         android:layout_marginLeft="8dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginRight="8dp"
-        android:elevation="10dp"
+        android:background="@drawable/image_view_background"
+        android:elevation="20dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/leftover_image_inner"
+            android:layout_width="120dp"
+            android:layout_height="150dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginBottom="8dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.545"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+    </android.support.constraint.ConstraintLayout>
+
 
     <TextView
         android:id="@+id/txtName"
         android:layout_width="200dp"
-        android:layout_height="25dp"
+        android:layout_height="35dp"
         android:layout_marginStart="8dp"
         android:layout_marginLeft="8dp"
         android:layout_marginTop="32dp"
@@ -32,7 +51,8 @@
         android:layout_marginRight="8dp"
         android:textAlignment="center"
         android:background="@drawable/custom_text_box"
-        android:elevation="10dp"
+        android:elevation="7dp"
+        android:gravity="center"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/leftover_image" />
@@ -46,11 +66,11 @@
         android:layout_marginTop="24dp"
         android:layout_marginEnd="8dp"
         android:layout_marginRight="8dp"
-        android:gravity="top"
+        android:gravity="center"
         android:inputType="textMultiLine"
         android:textAlignment="center"
         android:background="@drawable/custom_text_box"
-        android:elevation="10dp"
+        android:elevation="7dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/txtName" />
@@ -58,33 +78,35 @@
     <TextView
         android:id="@+id/txtStart"
         android:layout_width="125dp"
-        android:layout_height="25dp"
+        android:layout_height="35dp"
         android:layout_marginStart="32dp"
         android:layout_marginLeft="32dp"
         android:layout_marginTop="20dp"
         android:textAlignment="center"
         android:background="@drawable/custom_text_box"
-        android:elevation="10dp"
+        android:elevation="7dp"
+        android:gravity="center"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/txtDescription" />
 
     <TextView
         android:id="@+id/txtFinish"
         android:layout_width="125dp"
-        android:layout_height="25dp"
+        android:layout_height="35dp"
         android:layout_marginTop="20dp"
         android:layout_marginEnd="32dp"
         android:layout_marginRight="32dp"
         android:textAlignment="center"
         android:background="@drawable/custom_text_box"
-        android:elevation="10dp"
+        android:elevation="7dp"
+        android:gravity="center"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/txtDescription" />
 
     <TextView
         android:id="@+id/txtStatus"
         android:layout_width="200dp"
-        android:layout_height="25dp"
+        android:layout_height="35dp"
         android:layout_marginStart="8dp"
         android:layout_marginLeft="8dp"
         android:layout_marginTop="30dp"
@@ -93,7 +115,8 @@
         android:textAlignment="center"
         android:textSize="20dp"
         android:background="@drawable/custom_text_box"
-        android:elevation="10dp"
+        android:elevation="7dp"
+        android:gravity="center"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/txtStart" />
@@ -101,7 +124,7 @@
     <TextView
         android:id="@+id/txtArrow"
         android:layout_width="wrap_content"
-        android:layout_height="25dp"
+        android:layout_height="35dp"
         android:layout_marginStart="8dp"
         android:layout_marginLeft="8dp"
         android:layout_marginTop="20dp"
@@ -110,7 +133,8 @@
         android:textColor="#FFFFFF"
         android:text="----->"
         android:textStyle="bold"
-        android:elevation="10dp"
+        android:elevation="7dp"
+        android:gravity="center"
         app:layout_constraintEnd_toStartOf="@+id/txtFinish"
         app:layout_constraintStart_toEndOf="@+id/txtStart"
         app:layout_constraintTop_toBottomOf="@+id/txtDescription" />

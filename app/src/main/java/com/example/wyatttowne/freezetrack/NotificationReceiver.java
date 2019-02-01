@@ -10,6 +10,9 @@ public class NotificationReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
+
+        NotificationHelper notificationHelper = new Notif
+
         Intent background = new Intent(context, NotificationService.class);
         context.startService(background);
     }
