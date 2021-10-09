@@ -14,30 +14,16 @@
         android:layout_height="60dp"
         android:layout_marginStart="8dp"
         android:layout_marginLeft="8dp"
-        android:layout_marginTop="70dp"
+        android:layout_marginTop="196dp"
         android:layout_marginEnd="8dp"
         android:layout_marginRight="8dp"
-        android:text="WatchBoard"
         android:background="@drawable/custom_button"
         android:onClick="onStartWatchboard"
+        android:text="WatchBoard"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.502"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
-
-    <Button
-        android:id="@+id/btnRemind"
-        android:layout_width="200dp"
-        android:layout_height="60dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginTop="70dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginRight="8dp"
-        android:background="@drawable/custom_button"
-        android:text="Set Personal Remidner"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btnWatchBoard" />
 
     <Button
         android:id="@+id/btnSettings"
@@ -45,13 +31,12 @@
         android:layout_height="60dp"
         android:layout_marginStart="8dp"
         android:layout_marginLeft="8dp"
-        android:layout_marginTop="70dp"
         android:layout_marginEnd="8dp"
         android:layout_marginRight="8dp"
         android:background="@drawable/custom_button"
-        android:text="Settings"
         android:onClick="onStartSettings"
+        android:text="Settings"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btnRemind" />
+        tools:layout_editor_absoluteY="331dp" />
 </android.support.constraint.ConstraintLayout>
