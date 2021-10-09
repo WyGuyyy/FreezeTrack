@@ -14,6 +14,7 @@ import android.os.Environment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -132,9 +133,10 @@ public class LeftOverActivity extends AppCompatActivity {
                 cal1.setTime(currentDate);
                 cal2.setTime(parsedFinishDate);
 
-                if(!(cal1.get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR) && cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR)) ||
-                        (cal1.get(android.icu.util.Calendar.DAY_OF_YEAR) > cal2.get(Calendar.DAY_OF_YEAR) && cal1.get(Calendar.YEAR) >= cal2.get(Calendar.YEAR))){
+                //!(cal1.get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR) && cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR)) ||
 
+                if((cal1.get(Calendar.DAY_OF_YEAR) > cal2.get(Calendar.DAY_OF_YEAR) && cal1.get(Calendar.YEAR) >= cal2.get(Calendar.YEAR))){
+                    Log.d("test", cal1.get(Calendar.DAY_OF_YEAR) + "");
                     txtStatus.setText("EXPIRED");
                     txtStatus.setTextColor(Color.RED);
                     txtStatus.setTypeface(null, Typeface.BOLD);

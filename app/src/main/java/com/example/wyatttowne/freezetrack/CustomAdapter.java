@@ -61,8 +61,9 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.LeftoverHo
                 e.printStackTrace();
             }
 
-            if(!(cal1.get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR) && cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR)) ||
-                    (cal1.get(android.icu.util.Calendar.DAY_OF_YEAR) > cal2.get(Calendar.DAY_OF_YEAR) && cal1.get(Calendar.YEAR) >= cal2.get(Calendar.YEAR))){
+            //!(cal1.get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR) && cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR)) ||
+
+            if((cal1.get(android.icu.util.Calendar.DAY_OF_YEAR) > cal2.get(Calendar.DAY_OF_YEAR) && cal1.get(Calendar.YEAR) >= cal2.get(Calendar.YEAR))){
 
                 holder.leftoverStatus.setText("EXPIRED");
                 holder.leftoverStatus.setTextColor(Color.RED);
